@@ -1,0 +1,71 @@
+{%extends 'base.html'%}
+
+{%block content%}
+<div class="container">
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+            <h1 class="my-5">{{ post['title'] }}</h1>
+            <h5 class="my-5">{{ post['author'] }}, {{ post['date'] }}</h5>
+            <img src="{{ url_for('static', filename='images/' + post['image_id']) }}" class="img-fluid" style="margin-bottom: 10px;" alt="">
+            <p>{{ post['text'] }}</p>
+
+            <form action="" style="border: 1px solid #afa8a8bf; padding: 10px;">
+                <div class="form-group">
+                    <div style="background-color: rgb(199, 192, 192); margin-bottom: 10px;">
+                        <label for="comment" > Оставьте комментарий</label>
+                    </div>
+                    
+                    <textarea class="form-control" id="comment" rows="5" style="margin-bottom: 10px;"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Отправить</button>
+            </form>
+
+            <div class="comments" style="margin-top: 10px;">
+                {% for comment in post['comments'] %}
+                    <div class="comment">
+                        <div class="container">
+
+                            <div class="row">
+                                <div class="col-2">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="avatar"style="width: 80%;">
+                                </div>
+                               
+                                <div class="col-10">
+                                    <h4> {{ comment['author'] }} </h4>
+                                    <p>{{ comment['text'] }}</p>    
+                                    
+
+                                    {% if comment['replies'] %}
+                                        <div class="replies">
+                                            {% for reply in comment['replies'] %}
+                                                <div class="reply">
+                                                    <div class="container">
+                                                        <div class="row">
+                                                            <div class="col-2">
+                                                                <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="avatar"style="width: 80%;">
+                                                            </div>
+                                                            <div class="col-10">
+                                                                <h4> {{ reply['author'] }} </h4>
+                                                                <p>{{ reply['text'] }}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        
+    <div class="col-md-2"></div>
+</div>
+</div>
+{% endblock %}
