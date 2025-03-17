@@ -1,6 +1,8 @@
 import random
 from flask import Flask, render_template
 from faker import Faker
+from flask import Flask, request, render_template
+import re
 
 fake = Faker()
 
@@ -32,6 +34,33 @@ def generate_post(i):
         'comments': generate_comments()
     }
 
+def validate_phone(phone):
+    # Разрешённые символы: цифры, пробелы, круглые скобки, дефисы, точки, +
+    if not re.match(r'^[\d\s\(\)\-\.\\+]+$', phone):
+        return "Недопустимый ввод. В номере телефона встречаются недопустимые символы."
+
+    # Извлекаем только цифры
+    digits = re.sub(r'\D', '', phone)  
+
+    # Проверка количества цифр
+    if digits.startswith("7") or digits.startswith("8"):
+        if len(digits) != 11:
+            return "Недопустимый ввод. Неверное количество цифр."
+    elif len(digits) != 10:
+        return "Недопустимый ввод. Неверное количество цифр."
+
+    return None  # Ошибок нет
+
+def format_phone(digits):
+    """Преобразует номер к формату 8-***-***-**-**"""
+    digits = re.sub(r'\D', '', digits)  # Убираем всё, кроме цифр
+    if digits.startswith("7"):
+        digits = "8" + digits[1:]  # Заменяем +7 на 8
+
+    return f"{digits[0]}-{digits[1:4]}-{digits[4:7]}-{digits[7:9]}-{digits[9:11]}"
+
+
+
 posts_list = sorted([generate_post(i) for i in range(5)], key=lambda p: p['date'], reverse=True)
 @app.route('/')
 def index():
@@ -49,6 +78,22 @@ def post(index):
 @app.route('/about')
 def about():
     return render_template('about.html', title='Об авторе')
+
+@app.route("/checkphone", methods=["GET", "POST"])
+def checkphone():
+    phone = ""
+    error = None
+    formatted_phone = None
+
+    if request.method == "POST":
+        phone = request.form.get("phone", "")
+        error = validate_phone(phone)
+
+        if not error:
+            formatted_phone = format_phone(phone)
+
+    return render_template("checkphone.html", phone=phone, error=error, formatted_phone=formatted_phone)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
